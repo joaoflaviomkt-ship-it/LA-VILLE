@@ -210,9 +210,11 @@ function ProductSheet({ product, groups, onClose, onAdd }) {
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
+  const [missing, setMissing] = useState(null);
 
   const toggle = (g, o) => {
     setError('');
+    if (missing === g.id) setMissing(null);
     setSel((s) => {
       const cur = s[g.id] || [];
       if (g.max_select === 1) return { ...s, [g.id]: cur[0] === o.id && g.min_select === 0 ? [] : [o.id] };
@@ -226,7 +228,12 @@ function ProductSheet({ product, groups, onClose, onAdd }) {
 
   const add = () => {
     for (const g of groups) {
-      if ((sel[g.id] || []).length < g.min_select) { setError(`Escolha uma opção em “${g.name}”.`); return; }
+      if ((sel[g.id] || []).length < g.min_select) {
+        setError(`Escolha uma opção em “${g.name}”.`);
+        setMissing(g.id);
+        document.getElementById(`grp-${g.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
     }
     onAdd({
       key: newKey(), productId: product.id, name: product.name, qty, unit,
@@ -257,7 +264,7 @@ function ProductSheet({ product, groups, onClose, onAdd }) {
         <span className="price num" style={{ fontSize: 18 }}>{brl(product.price)}</span>
       </div>
       {groups.map((g) => (
-        <div key={g.id}>
+        <div key={g.id} id={`grp-${g.id}`} className={missing === g.id ? 'group missing' : 'group'}>
           <div className="group-h">
             <span>
               <b>{g.name}</b><br />
@@ -265,6 +272,7 @@ function ProductSheet({ product, groups, onClose, onAdd }) {
             </span>
             {g.min_select > 0 ? <span className="req">Obrigatório</span> : null}
           </div>
+          {missing === g.id ? <div className="err" role="alert" style={{ padding: '8px 0 0' }}>Escolha uma opção para continuar.</div> : null}
           {g.options.map((o) => (
             <label className="opt" key={o.id}>
               <span className="grow">
@@ -355,6 +363,8 @@ function CheckoutSheet({ cart, store, subtotal, open, onBack, onClose, onDone })
     if (f.mode === 'entrega' && (!f.street.trim() || !f.number.trim() || !f.district.trim()))
       return setError('Preencha rua, número e bairro para a entrega.');
     if (f.mode === 'entrega' && fee === null) return setError('Escolha um bairro atendido.');
+    if (f.pay === 'dinheiro' && f.change && parseMoney(f.change) < total)
+      return setError(`O troco precisa ser para um valor maior que o total (${brl(total)}).`);
     setSending(true);
     try {
       const res = await fetch('/api/orders', {

@@ -73,6 +73,8 @@ a.chip:hover{border-color:var(--muted)}
 .ph img{width:100%;height:100%;object-fit:cover;display:block}
 .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--mustard-soft);color:var(--warn)}
 .closed-banner{margin-top:12px}
+.group.missing .group-h{box-shadow:inset 3px 0 0 var(--bad);background:var(--bad-soft)}
+.group{scroll-margin-top:8px}
 .empty{padding:40px 16px;text-align:center;color:var(--muted)}
 .footer{padding:40px 16px 120px;text-align:center;color:var(--muted);font-size:13px}
 .cartbar{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent)}
