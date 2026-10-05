@@ -8,11 +8,10 @@ const body = Inter({ subsets: ["latin"], variable: "--font-body" });
 
 export const revalidate = 60; // revalida a cada 60s — dados do painel refletem rápido, sem bater no banco a cada acesso
 
-// Valores reais da loja, usados como padrão até o painel de configurações
-// (lv_settings) ser preenchido — assim os botões já funcionam de imediato,
-// e passam a ser controlados pelo painel assim que o dono configurar lá.
+// Usados apenas se a tabela store_settings ainda não tiver algum desses
+// campos preenchido — não são obrigatórios, é só uma rede de segurança.
 const DEFAULT_WHATSAPP = "5586995120634"; // (86) 99512-0634
-const DEFAULT_MAPS_URL = "https://maps.app.goo.gl/YakUW2ubFG9m2Kav5?g_st=ipc";
+const DEFAULT_LOCATION_URL = "https://maps.app.goo.gl/YakUW2ubFG9m2Kav5?g_st=ipc";
 const DEFAULT_ADDRESS = "Rua Visconde da Parnaíba, 2790";
 const DEFAULT_LOGO = "/img/logo-la-ville.png"; // public/img/logo-la-ville.png, já no projeto
 const DEFAULT_IFOOD_URL = "https://www.ifood.com.br/delivery/teresina-pi/la-ville-burger-horto/2694799c-5f72-4ff8-8a27-9049af716129";
@@ -22,29 +21,24 @@ async function getSettings() {
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
-  const { data } = await supabase.from("lv_settings").select("*").eq("id", 1).single();
+  // store_settings tem uma linha só (sem id fixo = 1, o id é uuid)
+  const { data } = await supabase.from("store_settings").select("*").limit(1).single();
   return data;
-}
-
-function todayStatus(hours) {
-  if (!hours) return "Confira nosso horário";
-  const days = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
-  const today = days[new Date().getDay()];
-  const todayHours = hours[today];
-  if (!todayHours) return "Fechado hoje";
-  const [, close] = todayHours.split("-");
-  return close ? `Aberto hoje até ${close}` : "Aberto hoje";
 }
 
 export default async function LandingPage() {
   const settings = await getSettings();
 
-  const storeName = settings?.store_name ?? "La Ville Hamburgueria";
+  const storeName = settings?.name || "La Ville Hamburgueria";
+  const slogan = settings?.slogan || "Hambúrguer artesanal de verdade, dentro da quadra.";
   const logoUrl = settings?.logo_url || DEFAULT_LOGO;
-  const whatsapp = settings?.whatsapp_number || DEFAULT_WHATSAPP;
+  const whatsapp = settings?.whatsapp || DEFAULT_WHATSAPP;
   const ifoodUrl = settings?.ifood_url || DEFAULT_IFOOD_URL;
-  const mapsUrl = settings?.maps_url || DEFAULT_MAPS_URL;
+  const mapsUrl = settings?.location_url || DEFAULT_LOCATION_URL;
   const address = settings?.address || DEFAULT_ADDRESS;
+  const isOpen = settings?.is_open ?? true;
+  const openingHours = settings?.opening_hours || "";
+  const deliveryTime = settings?.delivery_time || "";
 
   const actions = [
     {
@@ -100,11 +94,17 @@ export default async function LandingPage() {
           {storeName.toUpperCase()}
         </h1>
         <p className="relative z-10 mt-3 max-w-xs text-sm text-[#C9BFAE]">
-          Hambúrguer artesanal de verdade, dentro da quadra.
+          {slogan}
         </p>
         <div className="relative z-10 mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-1.5 text-xs text-[#C9BFAE]">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          {todayStatus(settings?.opening_hours ?? null)}
+          <span className={`h-2 w-2 rounded-full ${isOpen ? "bg-emerald-400" : "bg-red-400"}`} />
+          {isOpen
+            ? deliveryTime
+              ? `Aberto agora · entrega em ${deliveryTime}`
+              : "Aberto agora"
+            : openingHours
+            ? `Fechado · ${openingHours}`
+            : "Fechado no momento"}
         </div>
       </section>
 
