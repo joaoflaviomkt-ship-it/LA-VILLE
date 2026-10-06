@@ -56,7 +56,7 @@ export default function Admin() {
       channel = sb.channel('pedidos-painel')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'lv_orders' }, (payload) => {
           if (payload.eventType === 'INSERT') {
-            toast(`Novo pedido #${payload.new.number} · ${payload.new.customer_name}`);
+            toast(`Novo pedido #${payload.new.number}${payload.new.mode === 'mesa' ? ` · Mesa ${payload.new.table_number}` : ''} · ${payload.new.customer_name}`);
             if (soundRef.current) beep(audio);
             reloadCustomers();
           }

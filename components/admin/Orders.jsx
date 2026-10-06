@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { brl, formatPhone, NEXT_ACTION, nextStatus, PAYMENTS, statusLabel, waLink } from '@/lib/store';
+import { brl, formatPhone, modeLabel, NEXT_ACTION, nextStatus, PAYMENTS, statusLabel, waLink } from '@/lib/store';
 import { ConfirmButton } from '../ui';
 
 export default function Orders({ sb, orders, menu, reloadOrders, toast }) {
@@ -52,7 +52,7 @@ export default function Orders({ sb, orders, menu, reloadOrders, toast }) {
                 </div>
                 <div className="ob">
                   <div>
-                    <span className="mode">{o.mode === 'entrega' ? 'Entrega' : 'Retirada'}</span><br />
+                    <span className="mode" style={o.mode === 'mesa' ? { fontWeight: 800 } : undefined}>{modeLabel(o)}</span><br />
                     <b>{o.customer_name}</b> · <span className="num">{formatPhone(o.customer_phone)}</span>
                   </div>
                   {a ? (
@@ -104,7 +104,7 @@ function Receipt({ order: o, store }) {
   return (
     <div className="print-area" aria-hidden="true">
       <h2>{store?.name}</h2>
-      <div style={{ textAlign: 'center' }}>PEDIDO #{o.number} · {o.mode === 'entrega' ? 'ENTREGA' : 'RETIRADA'}</div>
+      <div style={{ textAlign: 'center' }}>PEDIDO #{o.number} · {modeLabel(o).toUpperCase()}</div>
       <div style={{ textAlign: 'center' }}>{new Date(o.created_at).toLocaleString('pt-BR')}</div>
       <hr />
       {o.items.map((i, n) => (
