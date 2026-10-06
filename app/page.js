@@ -137,23 +137,36 @@ export default async function LandingPage() {
             background: 'radial-gradient(circle, #5C1414 0%, rgba(92,20,20,0) 70%)',
           }}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={logo}
-          alt={name}
-          width={80}
-          height={80}
+        {/* Moldura clara: a logo aparece inteira (sem corte), seja quadrada ou larga,
+            e fica legível mesmo se o arquivo tiver fundo transparente. */}
+        <div
           style={{
             position: 'relative',
-            width: 80,
-            height: 80,
             marginBottom: 24,
-            borderRadius: '50%',
+            padding: '12px 20px',
+            borderRadius: 20,
+            background: '#FFFFFF',
             border: `2px solid ${C.gold}`,
-            objectFit: 'cover',
-            display: 'block',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            maxWidth: 'min(80vw, 320px)',
+            boxSizing: 'border-box',
           }}
-        />
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logo}
+            alt={name}
+            style={{
+              display: 'block',
+              height: 76,
+              width: 'auto',
+              maxWidth: '100%',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
         <h1
           className={display.className}
           style={{
