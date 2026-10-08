@@ -1,0 +1,17 @@
+{
+  "id": "/painel",
+  "name": "La Ville Burger · Painel",
+  "short_name": "Painel La Ville",
+  "description": "Painel do dono da La Ville Burger: pedidos, cardápio e faturamento.",
+  "lang": "pt-BR",
+  "start_url": "/painel",
+  "scope": "/painel",
+  "display": "standalone",
+  "background_color": "#141110",
+  "theme_color": "#141110",
+  "icons": [
+    { "src": "/app-painel/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app-painel/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app-painel/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
