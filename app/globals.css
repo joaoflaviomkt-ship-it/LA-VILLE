@@ -212,3 +212,33 @@ td.r,th.r{text-align:right}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .ph.contain img{object-fit:contain}
+
+/* ---------- comandas ---------- */
+.status.aberta{background:var(--mustard-soft);color:var(--warn);border-color:transparent}
+.status.fechada{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.status.cancelada{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.order.c-aberta{border-color:var(--mustard)}
+.order.c-cancelada{opacity:.65}
+.comanda-corpo{all:unset;box-sizing:border-box;cursor:pointer;padding:12px 14px;display:grid;gap:8px;font-size:14px;flex:1}
+.comanda-corpo:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.falta{color:var(--bad);font-weight:700}
+.quitada{color:var(--ok);font-weight:700}
+.badge.soft{background:var(--mustard-soft);color:var(--warn)}
+.comanda-item{align-items:center;padding-top:10px}
+.comanda-item small.obs{color:var(--warn)}
+.comanda-item-dir{display:flex;align-items:center;gap:12px;justify-self:end}
+.comanda-totais{gap:8px}
+.comanda-totais .falta-linha{border-top:1px dashed var(--line);padding-top:8px;font-size:18px}
+.produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-height:280px;overflow-y:auto}
+.produto-btn{display:grid;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px 12px;font-weight:600;color:var(--ink)}
+.produto-btn small{color:var(--muted);font-weight:500}
+.produto-btn:hover:not(:disabled){border-color:var(--accent)}
+.produto-btn:disabled{opacity:.6}
+.avulso summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted)}
+.pix-box{display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start}
+.pix-box img{width:240px;height:240px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+.pix-valor{font-family:var(--display);font-size:28px;font-weight:800}
+@media (max-width:560px){.pix-box{grid-template-columns:1fr;justify-items:center}.pix-box .stack{width:100%}}
+.troco{color:var(--ok);font-size:14px}
+.ok-texto{color:var(--ok);font-weight:600}
+.err-texto{color:var(--bad);font-weight:600}

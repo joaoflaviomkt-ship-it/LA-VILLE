@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { DAYS, moneyInput, parseMoney, PAYMENTS } from '@/lib/store';
 import { uploadImage } from '@/lib/upload';
+import { normalizePixKey, PIX_KEY_LABEL } from '@/lib/pix';
 import { Photo } from '../ui';
 
 const PAY_COL = { pix: 'pay_pix', cartao: 'pay_card', dinheiro: 'pay_cash' };
@@ -14,6 +15,7 @@ export default function StoreSettings({ sb, menu, reloadMenu, toast }) {
     delivery_fee: moneyInput(s.delivery_fee), min_order: moneyInput(s.min_order), delivery_area: s.delivery_area,
     districts: (s.districts || []).map((d, i) => ({ k: i, name: d.name, fee: moneyInput(d.fee) })),
     pay_pix: s.pay_pix, pay_card: s.pay_card, pay_cash: s.pay_cash, pix_key: s.pix_key,
+    pix_name: s.pix_name ?? '', pix_city: s.pix_city ?? 'Teresina',
     logo_url: s.logo_url, cover_url: s.cover_url, cover_logo_url: s.cover_logo_url,
   });
   const [f, setF] = useState(initial);
@@ -45,6 +47,8 @@ export default function StoreSettings({ sb, menu, reloadMenu, toast }) {
       districts: f.districts.filter((d) => d.name.trim()).map((d) => ({ name: d.name.trim(), fee: parseMoney(d.fee) })),
       pay_pix: f.pay_pix, pay_card: f.pay_card, pay_cash: f.pay_cash, pix_key: f.pix_key.trim(),
       logo_url: f.logo_url, cover_url: f.cover_url, cover_logo_url: f.cover_logo_url,
+      // campos do Pix das comandas (só existem depois de rodar supabase/comandas.sql)
+      ...('pix_city' in s ? { pix_name: f.pix_name.trim().slice(0, 60), pix_city: f.pix_city.trim().slice(0, 40) || 'Teresina' } : {}),
     }).eq('id', 1);
     setSaving(false);
     if (error) return toast('Não foi possível salvar. Tente de novo.');
@@ -143,7 +147,22 @@ export default function StoreSettings({ sb, menu, reloadMenu, toast }) {
             <div className="checks">
               {Object.entries(PAYMENTS).map(([k, l]) => <label key={k}><input type="checkbox" checked={f[PAY_COL[k]]} onChange={set(PAY_COL[k])} /> {l}</label>)}
             </div>
-            <div className="field"><label htmlFor="s-pix">Chave Pix</label><input id="s-pix" value={f.pix_key} onChange={set('pix_key')} /></div>
+            <div className="field">
+              <label htmlFor="s-pix">Chave Pix</label>
+              <input id="s-pix" value={f.pix_key} onChange={set('pix_key')} />
+              {f.pix_key.trim() ? (() => {
+                const k = normalizePixKey(f.pix_key);
+                return <small className={k.type === 'desconhecida' ? 'err-texto' : 'muted'}>
+                  {k.type === 'desconhecida' ? 'Não reconheci esta chave. Use CPF, CNPJ, celular, e-mail ou chave aleatória.' : `Tipo: ${PIX_KEY_LABEL[k.type]}${k.type === 'celular' ? ` (${k.key})` : ''}`}
+                </small>;
+              })() : null}
+            </div>
+            {'pix_city' in s ? (
+              <div className="grid2">
+                <div className="field"><label htmlFor="s-pixname">Nome no Pix (opcional)</label><input id="s-pixname" placeholder={s.name} value={f.pix_name} onChange={set('pix_name')} maxLength={60} /></div>
+                <div className="field"><label htmlFor="s-pixcity">Cidade no Pix</label><input id="s-pixcity" value={f.pix_city} onChange={set('pix_city')} maxLength={40} /></div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
