@@ -6,7 +6,7 @@ Cardápio online com sacola, entrega ou retirada, e envio pelo WhatsApp. O paine
 |---|---|---|
 | `/` | Cardápio para o cliente (link da bio do Instagram) | Qualquer pessoa |
 | `/pedido/<código>` | Acompanhamento do pedido em tempo real | Quem fez o pedido |
-| `/painel` | Painel do dono: pedidos, clientes, faturamento, cardápio, adicionais e loja | Só administradores (login) |
+| `/painel` | Painel do dono: pedidos, comandas, clientes, faturamento, cardápio, adicionais e loja | Só administradores (login) |
 
 Tecnologia: **Next.js** (hospedado na **Vercel**) + **Supabase** (banco, login, fotos e tempo real). Os dois têm plano gratuito suficiente para começar.
 
@@ -56,11 +56,20 @@ Toda alteração enviada ao GitHub gera uma nova versão automaticamente.
 ## Usando o painel (`/painel`)
 
 - **Pedidos:** chegam na hora. Avance o status (Recebido → Em preparo → Saiu para entrega/Pronto → Concluído), cancele, chame o cliente no WhatsApp ou **imprima** para a cozinha (formato de impressora térmica 80 mm, pela janela de impressão do navegador). O botão **🔔 Ligar som** toca um alerta a cada pedido novo; ele precisa ser clicado uma vez sempre que o painel for aberto.
+- **Comandas:** conta individual de cada pessoa (ideal para quem está na arena). Abra a comanda com nome e telefone, lance o que a pessoa consumir (com adicionais, ou um item fora do cardápio) e receba no final: **Pix com QR Code do valor exato**, dinheiro (calcula o troco) ou cartão. Dá para dividir o pagamento, dar desconto, mandar a conta e o Pix copia e cola pelo WhatsApp e imprimir a comanda com o QR do Pix. A comanda só fecha quando estiver tudo pago. O Pix cai direto na chave da loja; confira no app do banco e toque em **Recebi o Pix**.
 - **Clientes:** cadastro automático a cada pedido (pelo WhatsApp). Mostra busca, filtros (recorrentes, novos, sumidos, aniversariantes), histórico, observações, etiquetas e exportação para planilha.
 - **Faturamento:** total, pedidos, ticket médio, gráfico por dia, formas de pagamento e mais vendidos.
 - **Cardápio:** criar e editar produtos e categorias, trocar fotos, mudar preços, pausar itens e marcar destaques.
 - **Adicionais:** grupos como “Tipo de pão” (obrigatório) e “Adicionais” (opcional), com preço por opção.
 - **Loja:** nome, logo, capa, horário, abrir ou fechar manualmente, taxa de entrega fixa ou por bairro, área de entrega, pedido mínimo, formas de pagamento e chave Pix.
+
+### Ativar as comandas (uma vez)
+
+1. No Supabase, abra **SQL Editor → New query**, cole todo o conteúdo de `supabase/comandas.sql` e clique em **Run**.
+2. No painel, aba **Loja → Entrega e pagamento**, confira a **chave Pix** (o painel mostra o tipo detectado: CPF, celular, e-mail...), o **nome** e a **cidade** que aparecem para quem paga, e salve.
+3. Faça um teste: abra uma comanda, lance um item fora do cardápio de R$ 0,10, gere o Pix e pague com o seu próprio banco. O valor deve cair na conta da chave cadastrada.
+
+O QR Code do Pix é gerado dentro do próprio sistema (sem API externa e sem custo), no padrão BR Code do Banco Central. Como é um Pix estático, o sistema não fica sabendo sozinho que o dinheiro caiu: a confirmação é feita pelo dono. A confirmação automática fica para a fase 2 (Mercado Pago com webhook).
 
 ## Segurança
 
@@ -86,11 +95,14 @@ app/pedido/[token]/         acompanhamento do pedido
 app/painel/                 painel do dono + login
 app/api/orders/             criação e consulta de pedidos (servidor)
 components/Menu.jsx         telas do cardápio, sacola e checkout
-components/admin/*          abas do painel
+components/admin/*          abas do painel (Comandas.jsx = comandas)
 lib/order-logic.js          validação e cálculo do pedido
 lib/store.js                horário, taxas, mensagens do WhatsApp
+lib/pix.js                  código Pix (BR Code) com valor
+lib/qrcode.js               gerador de QR Code próprio (sem biblioteca externa)
 supabase/schema.sql         tabelas + segurança
 supabase/seed.sql           cardápio inicial da La Ville
+supabase/comandas.sql       comandas individuais (rodar uma vez)
 public/img/                 logo e fotos iniciais
 ```
 
